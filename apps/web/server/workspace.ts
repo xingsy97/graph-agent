@@ -21,10 +21,10 @@ class WorkspaceService {
   async suggestions(): Promise<Array<{ path: string; label: string }>> {
     const current = process.cwd();
     const parent = path.dirname(current);
-    const siblings = await readdir(parent, { withFileTypes: true }).catch(() => []);
+    const siblings = await readdir(/* turbopackIgnore: true */ parent, { withFileTypes: true }).catch(() => []);
     return [
       { path: current, label: "Current project" },
-      ...siblings.filter((entry) => entry.isDirectory() && !entry.name.startsWith(".") && path.join(parent, entry.name) !== current).slice(0, 8).map((entry) => ({ path: path.join(parent, entry.name), label: entry.name })),
+      ...siblings.filter((entry) => entry.isDirectory() && !entry.name.startsWith(".") && path.join(/* turbopackIgnore: true */ parent, entry.name) !== current).slice(0, 8).map((entry) => ({ path: path.join(/* turbopackIgnore: true */ parent, entry.name), label: entry.name })),
     ];
   }
 

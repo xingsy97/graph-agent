@@ -40,9 +40,9 @@ a complete snapshot for that run. Event history is capped at 300 events.
    runnable when every incoming dependency is `succeeded` or `replaced`.
    Paused, cancelled, waiting-for-user, expanding, failed, and running nodes
    must never be scheduled.
-2. At most four nodes from one run may execute concurrently. Independent
-   runnable nodes may start together; blocked descendants wait without
-   consuming a concurrency slot.
+2. A run executes up to its selected parallel limit: 10, 20, or 100.
+   Independent runnable nodes may start together; blocked descendants wait
+   without consuming a concurrency slot.
 3. Starting a node changes it to `running`, records `startedAt`, sets
    `Starting agent`, and logs `Node started`. Runtime progress messages update
    the node progress and emit a node event.
@@ -89,7 +89,8 @@ a complete snapshot for that run. Event history is capped at 300 events.
    the associated node to `ready`, logs the answer, wakes the scheduler, and
    returns the decision. Missing input is HTTP 400; an unknown, stale, or
    already answered decision is HTTP 409.
-5. `PATCH /api/runs/:runId` accepts only `pause`, `resume`, and `cancel`.
+5. `PATCH /api/runs/:runId` accepts `pause`, `resume`, `cancel`, `reset`, and
+   runtime configuration changes.
    Pause prevents new scheduling but does not discard state; resume changes
    the run to `running` and wakes the scheduler; cancel changes its status to
    `cancelled` and prevents future scheduling. Unknown IDs return 404 and
@@ -132,6 +133,29 @@ composer. It does not cancel, alter, or delete the prior run, its decisions,
 its events, or its baseline; any still-running prior run continues on the
 server. Submitting the composer subsequently creates a distinct run with a
 new ID and fresh graph version 1.
+
+## Persistent recording and Replay
+
+1. Every emitted `TaskRun` snapshot is appended to a per-run recording with
+   its original time offset and calculated parallel-time metrics. Recordings
+   are persisted outside the project workspace and survive server restarts.
+2. A terminal recording also freezes its workspace report, including file
+   changes, verification outcomes, agent outputs, and Git branch. Replay does
+   not depend on the workspace remaining unchanged or even continuing to
+   exist.
+3. `GET /api/replays` lists recordings without their frame payloads. `GET
+   /api/replays/:runId` returns the complete ordered timeline or HTTP 404.
+4. Opening Replay starts at offset zero and plays automatically. Its virtual
+   clock uses original timing at 1× and supports pause, restart, scrubbing,
+   and 0.5×, 1×, 2×, or 4× speed. Scrubbing backward restores the exact older
+   graph, node states, event history, decisions, metrics, and outputs.
+5. Replay drives the same graph layout, graph-rewrite transitions, camera
+   follow, running-node animation, and dependency-transfer animation as a live
+   run. Pausing freezes time-dependent animation.
+6. Replay is strictly read-only: it opens no SSE connection, invokes no
+   Copilot session, submits no decision, mutates no run, and performs no live
+   workspace-result request. An unfinished recording truthfully ends in its
+   last recorded nonterminal state rather than fabricating completion.
 
 ## Required automated coverage
 

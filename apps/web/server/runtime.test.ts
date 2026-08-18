@@ -59,9 +59,10 @@ describe("MockAgentRuntime", () => {
   });
 
   it("instructs Copilot to create real output dependencies and broad parallel work", () => {
-    expect(COPILOT_PLANNER_SYSTEM_PROMPT).toContain("at least four genuinely independent workstreams");
-    expect(COPILOT_PLANNER_SYSTEM_PROMPT).toContain("only when the target truly consumes the source's output");
+    expect(COPILOT_PLANNER_SYSTEM_PROMPT).toContain("expose 5-8 runnable nodes");
+    expect(COPILOT_PLANNER_SYSTEM_PROMPT).toContain("What exact output is unavailable?");
     expect(COPILOT_PLANNER_SYSTEM_PROMPT).toContain("non-overlapping file ownership");
+    expect(COPILOT_PLANNER_SYSTEM_PROMPT).toContain("must not become a single global gate");
     expect(COPILOT_PLANNER_SYSTEM_PROMPT).toContain("Keep independent branches runnable");
     expect(COPILOT_WORKER_SYSTEM_PROMPT).toContain("Resolve reversible implementation choices yourself");
   });

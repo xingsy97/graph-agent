@@ -1,6 +1,11 @@
-export type RunStatus = "running" | "paused" | "completed" | "failed" | "cancelled";
+export type RunStatus =
+  | "running"
+  | "paused"
+  | "completed"
+  | "failed"
+  | "cancelled";
 export type RunSpeed = "deliberate" | "balanced" | "fast";
-export type WorkflowMode = "adaptive" | "sequential";
+export type WorkflowMode = "adaptive";
 
 export type NodeStatus =
   | "pending"
@@ -88,6 +93,40 @@ export interface TaskRun {
   updatedAt: string;
 }
 
+export interface RunTimeSavings {
+  serialMinutes: number;
+  parallelMinutes: number;
+  savedMinutes: number;
+  savedPercent: number;
+  actualElapsedMinutes: number;
+}
+
+export interface ReplayFrame {
+  sequence: number;
+  offsetMs: number;
+  recordedAt: string;
+  run: TaskRun;
+  metrics: RunTimeSavings;
+}
+
+export interface ReplayRecording {
+  id: string;
+  task: string;
+  runtime: TaskRun["runtime"];
+  workspacePath: string;
+  createdAt: string;
+  updatedAt: string;
+  status: RunStatus;
+  durationMs: number;
+  frames: ReplayFrame[];
+  metrics: RunTimeSavings;
+  report?: WorkspaceReport;
+}
+
+export interface ReplaySummary extends Omit<ReplayRecording, "frames"> {
+  frameCount: number;
+}
+
 export interface WorkspaceChange {
   path: string;
   kind: "created" | "modified" | "deleted";
@@ -98,7 +137,12 @@ export interface WorkspaceReport {
   gitBranch?: string;
   changes: WorkspaceChange[];
   completedOutputs: Array<{ nodeId: string; title: string; result: string }>;
-  verifications: Array<{ nodeId: string; title: string; status: NodeStatus; result?: string }>;
+  verifications: Array<{
+    nodeId: string;
+    title: string;
+    status: NodeStatus;
+    result?: string;
+  }>;
   generatedAt: string;
 }
 
@@ -107,6 +151,7 @@ export interface NewNode {
   title: string;
   task: string;
   stage?: TaskStage;
+  estimatedDurationMinutes?: number;
 }
 
 export interface NewEdge {

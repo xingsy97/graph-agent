@@ -12,6 +12,8 @@
     "dev": "pnpm --filter @graph-agent/web dev",
     "start": "pnpm --filter @graph-agent/web start",
     "build": "pnpm --filter @graph-agent/web build",
+    "deck:dev": "pnpm --filter @graph-agent/deck dev",
+    "deck:build": "pnpm --filter @graph-agent/deck build",
     "typecheck": "pnpm -r typecheck",
     "test": "pnpm -r test",
     "check": "pnpm typecheck && pnpm test && pnpm build"

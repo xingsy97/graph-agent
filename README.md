@@ -77,6 +77,7 @@ pnpm check
 
 ## Documentation
 
+- [Presentation deck](https://xingsy97.github.io/graph-agent/)
 - [System design](docs/design.md)
 - [Frontend architecture](docs/frontend.md)
 - [Orchestration behavior](docs/orchestration-behavior.md)

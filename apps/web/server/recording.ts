@@ -1,4 +1,4 @@
-import { mkdir, readFile, readdir, rename, writeFile } from "node:fs/promises";
+import { mkdir, readFile, readdir, rename, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import os from "node:os";
 import {
@@ -6,6 +6,7 @@ import {
   type ReplayRecording,
   type ReplaySummary,
   type TaskRun,
+  type WorkspaceReport,
 } from "@graph-agent/domain";
 import { workspaceService } from "./workspace";
 
@@ -32,8 +33,26 @@ export class RunRecordingService {
   }
 
   async flush(runId?: string): Promise<void> {
-    if (runId) await this.writes.get(runId);
-    else await Promise.all(this.writes.values());
+    if (runId) await this.writes.get(runId)?.catch(() => undefined);
+    else
+      await Promise.all(
+        [...this.writes.values()].map((write) => write.catch(() => undefined)),
+      );
+  }
+
+  async attachReport(runId: string, report: WorkspaceReport): Promise<void> {
+    const previous =
+      this.writes.get(runId)?.catch(() => undefined) ?? Promise.resolve();
+    const next = previous.then(async () => {
+      const recording =
+        this.memory.get(runId) ?? (await this.getFromDisk(runId));
+      if (!recording) return;
+      const updated = { ...recording, report: structuredClone(report) };
+      this.memory.set(runId, updated);
+      await this.writeRecording(updated);
+    });
+    this.writes.set(runId, next);
+    await next;
   }
 
   async get(runId: string): Promise<ReplayRecording | undefined> {
@@ -109,11 +128,23 @@ export class RunRecordingService {
       ...(report ? { report } : {}),
     };
     this.memory.set(run.id, recording);
+    await this.writeRecording(recording);
+  }
+
+  private async writeRecording(recording: ReplayRecording): Promise<void> {
     await mkdir(this.root, { recursive: true });
-    const file = path.join(this.root, `${run.id}.json`);
+    const file = path.join(this.root, `${recording.id}.json`);
     const temporary = `${file}.${process.pid}.tmp`;
-    await writeFile(temporary, JSON.stringify(recording), "utf8");
-    await rename(temporary, file);
+    const contents = JSON.stringify(recording);
+    await writeFile(temporary, contents, "utf8");
+    try {
+      await rename(temporary, file);
+    } catch {
+      // Antivirus/indexers can briefly lock the destination on Windows. The
+      // complete temp file remains the source of truth for this fallback.
+      await writeFile(file, contents, "utf8");
+      await rm(temporary, { force: true });
+    }
   }
 
   private async getFromDisk(

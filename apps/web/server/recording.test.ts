@@ -74,4 +74,32 @@ describe("RunRecordingService", () => {
       ]),
     });
   });
+
+  it("can backfill a final report without changing recorded frames", async () => {
+    const root = await mkdtemp(
+      path.join(os.tmpdir(), "graph-agent-report-backfill-"),
+    );
+    const service = new RunRecordingService(root);
+    const run = createDemoRun(
+      "backfill-run",
+      "Build a demo",
+      root,
+      "mock",
+      Date.parse("2026-08-18T00:00:00.000Z"),
+    );
+    service.record(run);
+    await service.flush(run.id);
+    const frameCount = (await service.get(run.id))!.frames.length;
+    await service.attachReport(run.id, {
+      workspacePath: root,
+      changes: [],
+      completedOutputs: [],
+      verifications: [],
+      generatedAt: "2026-08-18T00:01:00.000Z",
+    });
+
+    const restored = await new RunRecordingService(root).get(run.id);
+    expect(restored?.frames).toHaveLength(frameCount);
+    expect(restored?.report?.workspacePath).toBe(root);
+  });
 });

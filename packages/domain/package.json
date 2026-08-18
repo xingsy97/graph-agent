@@ -1,0 +1,19 @@
+{
+  "name": "@graph-agent/domain",
+  "version": "0.1.0",
+  "description": "Framework-independent domain model for Graph Agent",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  }
+}

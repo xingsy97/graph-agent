@@ -1,0 +1,103 @@
+.graph-toolbar {
+  position: absolute; z-index: 8; top: 10px; left: 14px; right: 14px;
+  display: grid; grid-template-columns: auto minmax(360px, 680px) auto; align-items: center; gap: 14px;
+  pointer-events: none;
+}
+.graph-toolbar > * { pointer-events: auto; }
+.graph-view-controls, .segmented-control, .layout-switch, .graph-tools { display: flex; align-items: center; }
+.graph-view-controls { gap: 8px; }
+.segmented-control { padding: 2px; border: 1px solid #31353c; border-radius: 7px; background: #14161a; }
+.segmented-control button { height: 32px; padding: 0 12px; border: 0; border-radius: 5px; color: #8f96a1; background: transparent; font-size: 13px; font-weight: 550; }
+.segmented-control button:hover:not(:disabled) { color: #e9ecf1; background: #1d2025; }
+.segmented-control button.active { color: #f4f6f8; background: #282c33; }
+.segmented-control button:disabled { opacity: .4; cursor: default; }
+.layout-switch { height: 38px; padding: 3px; gap: 2px; border: 1px solid #2c3037; border-radius: 7px; background: #111317; }
+.layout-switch button { height: 30px; display: flex; align-items: center; gap: 6px; padding: 0 9px; border: 0; border-radius: 5px; color: #7f8792; background: transparent; font-size: 12px; font-weight: 600; }
+.layout-switch button:hover { color: #dfe3e8; background: #191c21; }
+.layout-switch button.active { color: #e8f4ff; background: #203343; box-shadow: inset 0 0 0 1px #2d597b; }
+.graph-tools { justify-content: flex-end; gap: 6px; }
+.history-button { height: 36px; display: flex; align-items: center; gap: 7px; padding: 0 10px; border: 1px solid #31353c; border-radius: 7px; color: #aeb4bd; background: #14161a; font-size: 13px; }
+.history-button:hover { color: #f4f6f8; border-color: #4b515c; background: #1b1e23; }
+.follow-toggle.active { color: #dff2ff; border-color: #346b91; background: #183149; box-shadow: inset 0 0 0 1px rgba(79,165,225,.12); }
+
+.stage-legend { min-width: 0; height: 38px; display: grid; grid-template-columns: repeat(5, 1fr); border: 1px solid #2c3037; border-radius: 7px; background: #111317; }
+.stage-legend button { position: relative; min-width: 0; display: flex; align-items: center; justify-content: center; gap: 6px; border: 0; border-right: 1px solid #292d33; color: #818894; background: transparent; font-size: 12px; font-weight: 600; letter-spacing: .025em; }
+.stage-legend button:last-child { border-right: 0; }
+.stage-legend button:hover { color: #dfe3e8; background: #191c21; }
+.stage-legend button.active { color: #fff; background: #22262c; }
+.stage-legend small { color: #5f6671; font: 11px var(--font-mono); }
+.stage-legend button.active small { color: #9aa2ad; }
+.stage-legend i { position: absolute; right: 8px; width: 5px; height: 5px; border-radius: 50%; background: #369eff; animation: stage-live 1.1s ease-in-out infinite; }
+
+.focus-banner { position: absolute; z-index: 8; top: 62px; left: 50%; display: flex; align-items: center; gap: 9px; padding: 8px 9px 8px 11px; border: 1px solid #35506c; border-radius: 7px; background: #15202b; transform: translateX(-50%); box-shadow: 0 8px 20px rgba(0,0,0,.3); }
+.focus-banner span { color: #7ebeff; font-size: 12px; }.focus-banner strong { max-width: 240px; overflow: hidden; font-size: 13px; text-overflow: ellipsis; white-space: nowrap; }.focus-banner button { height: 26px; border: 1px solid #416b96; border-radius: 5px; color: #e8f4ff; background: #244d75; font-size: 12px; }
+
+.task-node {
+  position: relative; box-sizing: border-box; width: 252px; min-height: 128px; overflow: hidden; padding: 16px 17px;
+  border: 1px solid #373c45; border-radius: 9px; background: #17191d; box-shadow: 0 7px 18px rgba(0,0,0,.28);
+  transition: border-color .18s ease, background-color .18s ease, box-shadow .18s ease;
+}
+.task-node:hover { border-color: #626a76; background: #1a1d22; box-shadow: 0 9px 22px rgba(0,0,0,.34); }
+.task-node.is-selected { border-color: #4da3f8; box-shadow: 0 0 0 2px rgba(77,163,248,.18), 0 9px 22px rgba(0,0,0,.34); }
+.task-node strong { display: block; margin: 11px 0 6px; font-size: 17px; font-weight: 620; letter-spacing: -.012em; line-height: 1.3; }
+.task-node small { display: block; overflow: hidden; color: #a5acb7; font-size: 14px; line-height: 1.45; text-overflow: ellipsis; white-space: nowrap; }
+.node-topline { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: #8c939e; font-size: 13px; font-weight: 600; text-transform: capitalize; }
+.node-topline > span { display: flex; align-items: center; gap: 7px; }
+.node-topline em { min-height: 22px; display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border: 1px solid var(--stage-border, #343840); border-radius: 999px; color: var(--stage-text, #a7aeb8); background: var(--stage-bg, #202329); font-size: 11px; font-style: normal; font-weight: 650; letter-spacing: .01em; text-transform: none; box-shadow: inset 0 1px rgba(255,255,255,.035); }
+.stage-discover { --stage-text: #8ed8ff; --stage-bg: #152b38; --stage-border: #285269; }
+.stage-design { --stage-text: #c8a8ff; --stage-bg: #261f37; --stage-border: #4c3b70; }
+.stage-build { --stage-text: #ffbe7a; --stage-bg: #352619; --stage-border: #68472a; }
+.stage-verify { --stage-text: #79dfb0; --stage-bg: #172e26; --stage-border: #2d5b47; }
+.stage-deliver { --stage-text: #ff9eb4; --stage-bg: #351f27; --stage-border: #673849; }
+.node-topline time { color: #747b86; font: 12px var(--font-mono); text-transform: none; }
+.node-symbol { width: 22px; height: 22px; display: inline-grid; place-items: center; border-radius: 5px; color: #b3bac4; background: #292d34; font-size: 14px; font-style: normal; }
+.state-running .node-symbol, .state-ready .node-symbol { color: white; background: #137edb; }.state-waiting_user { border-color: #9a6a25; }.state-waiting_user .node-symbol { color: #171008; background: #e7a23d; }.state-succeeded .node-symbol { color: #07150c; background: #37c975; }.state-failed .node-symbol { color: white; background: #e6504a; }.state-expanding { border-color: #795495; }.state-expanding .node-symbol { color: white; background: #8756aa; }
+
+/* One quiet, persistent signal for active work; dependency handoff remains a separate, brief event. */
+.task-node.state-running { border-color: #4d9dde; background: linear-gradient(145deg, #192735 0%, #151a20 74%); animation: running-node-breathe 2.4s ease-in-out infinite; }
+.task-node.state-running::before { content: ""; position: absolute; z-index: 3; top: 12px; bottom: 12px; left: -1px; width: 3px; border-radius: 0 2px 2px 0; background: linear-gradient(180deg, rgba(92,183,255,.3), #4dafff, rgba(92,183,255,.3)); box-shadow: 1px 0 8px rgba(49,160,255,.38); animation: activity-rail 2.4s ease-in-out infinite; }
+.task-node.state-running .node-symbol { position: relative; box-shadow: 0 0 0 3px rgba(39,156,255,.14); }
+.node-progress { display: block; width: 100%; height: 3px; margin-top: 12px; overflow: hidden; border-radius: 2px; background: #26303a; }
+.node-progress i { display: block; width: 38%; height: 100%; background: #4eabf8; animation: indeterminate 1.8s ease-in-out infinite; }
+
+.react-flow__node { transition: opacity .3s ease; cursor: grab; }
+.react-flow__node.dragging { transition: none; cursor: grabbing; z-index: 20 !important; }
+.react-flow__handle { width: 9px; height: 9px; border: 2px solid #17191d; background: #737b87; }
+.react-flow__edge-path { stroke: #4d5561; stroke-width: 1.8; stroke-linecap: round; transition: stroke .3s ease, opacity .3s ease; }
+.react-flow__edge.animated .react-flow__edge-path { stroke-width: 2.2; stroke-dasharray: none; animation: none; }
+.handoff-edge-flow { pointer-events: none; stroke: #78c4fa; stroke-width: 2.35; stroke-linecap: round; stroke-dasharray: 5 17; opacity: .78; filter: drop-shadow(0 0 2px rgba(55,158,242,.35)); will-change: stroke-dashoffset; animation: handoff-edge-flow 1.6s linear infinite; }
+.edge-transferring path { stroke: #366f9f !important; }.edge-complete path { stroke: #397052 !important; }.edge-blocked path { stroke: #a4732c !important; stroke-dasharray: 5 6; }
+.react-flow__controls, .react-flow__minimap { overflow: hidden; border: 1px solid #30343b !important; border-radius: 7px !important; background: #14161a !important; box-shadow: 0 8px 24px rgba(0,0,0,.3) !important; }
+.react-flow__controls-button { width: 34px !important; height: 34px !important; border-color: #30343b !important; color: white !important; background: transparent !important; }.react-flow__controls-button:hover { background: #22262c !important; }.react-flow__controls-button svg { fill: #aeb5c0 !important; }
+
+.graph-toast { position: absolute; z-index: 12; right: 18px; bottom: 18px; width: 330px; display: flex; align-items: center; gap: 11px; padding: 12px; border: 1px solid #4b3b56; border-radius: 8px; color: white; background: #211c25; box-shadow: 0 12px 30px rgba(0,0,0,.36); text-align: left; animation: toast-in .3s ease-out; }.graph-toast > span { width: 32px; height: 32px; display: grid; place-items: center; border-radius: 6px; color: #c895e1; background: #35273d; }.graph-toast > div { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 3px; }.graph-toast strong { font-size: 13px; }.graph-toast small { overflow: hidden; color: #a6adb7; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }.graph-toast > i { color: #c895e1; font-size: 12px; font-style: normal; }
+.task-node.is-new { animation: node-materialize .7s cubic-bezier(.2,.8,.2,1) both; }
+.task-node.is-reflowing { animation: node-reflow-settle .76s cubic-bezier(.22,.78,.18,1) both; will-change: transform, opacity; }
+.task-node.state-running.is-new {
+  animation:
+    node-materialize .7s cubic-bezier(.2,.8,.2,1) both,
+    running-node-breathe 1.25s ease-in-out .7s infinite;
+}
+.graph-is-updating .react-flow__edge-path { animation: edge-reveal .8s ease-out both; }
+.graph-is-updating .graph-canvas { animation: graph-reflow .55s ease-out; }
+
+@keyframes activity-rail { 50% { opacity: .55; transform: scaleY(.72); } }
+@keyframes running-node-breathe { 50% { border-color: #68afe9; box-shadow: 0 0 0 2px rgba(43,151,247,.1), 0 9px 24px rgba(15,111,194,.2); } }
+@keyframes stage-live { 50% { opacity: .25; transform: scale(.75); } }
+@keyframes indeterminate { 0% { transform: translateX(-110%); } 55%,100% { transform: translateX(250%); } }
+@keyframes handoff-edge-flow { from { stroke-dashoffset: 0; } to { stroke-dashoffset: -22; } }
+@keyframes node-materialize { from { opacity: 0; transform: translateY(18px) scale(.94); } }
+@keyframes node-reflow-settle {
+  0% { opacity: .68; transform: translate(var(--reflow-x), var(--reflow-y)) scale(.975); filter: saturate(.72); }
+  55% { opacity: 1; }
+  100% { opacity: 1; transform: translate(0, 0) scale(1); filter: saturate(1); }
+}
+@keyframes edge-reveal { from { opacity: 0; stroke-dasharray: 0 1000; } to { opacity: 1; stroke-dasharray: 1000 0; } }
+@keyframes graph-reflow { 0% { opacity: .78; } 100% { opacity: 1; } }
+@keyframes toast-in { from { opacity: 0; transform: translateY(8px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .task-node.state-running, .task-node.state-running::before, .node-progress i, .stage-legend i, .handoff-edge-flow { animation: none; }
+}
+@media (max-width: 1250px) { .stage-legend { display: none; }.graph-toolbar { grid-template-columns: 1fr auto; }.history-button:last-child { display: none; } }
+@media (max-width: 760px) { .graph-toolbar { left: 8px; right: 8px; grid-template-columns: auto 1fr; }.stage-legend { display: none; }.graph-tools { display: none; }.task-node { width: 248px; }.react-flow__minimap { display: none; }.graph-toast { right: 10px; bottom: 10px; width: calc(100% - 20px); } }

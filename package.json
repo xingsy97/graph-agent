@@ -1,0 +1,19 @@
+{
+  "name": "graph-agent",
+  "description": "Local-first dynamic DAG orchestration for AI agents",
+  "private": true,
+  "license": "MIT",
+  "packageManager": "pnpm@11.3.0",
+  "engines": {
+    "node": ">=20",
+    "pnpm": ">=11"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @graph-agent/web dev",
+    "start": "pnpm --filter @graph-agent/web start",
+    "build": "pnpm --filter @graph-agent/web build",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "check": "pnpm typecheck && pnpm test && pnpm build"
+  }
+}

@@ -1,0 +1,8 @@
+packages:
+  - apps/*
+  - packages/*
+
+allowBuilds:
+  esbuild: true
+  koffi: true
+  sharp: true

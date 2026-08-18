@@ -19,7 +19,7 @@ Graph Agent turns a high-level task into a dynamic directed acyclic graph (DAG).
 
 ## Requirements
 
-- Node.js 20 or later
+- Node.js 22.13 or later
 - pnpm 11 or later
 - GitHub Copilot CLI installed and authenticated for the default runtime
 

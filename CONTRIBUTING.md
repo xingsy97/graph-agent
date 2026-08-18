@@ -12,7 +12,7 @@ Thank you for helping improve Graph Agent. Keep changes focused, reviewable, and
 ## Local development
 
 1. Fork and clone the repository.
-2. Install Node.js 20+, pnpm 11+, and the GitHub Copilot CLI.
+2. Install Node.js 22.13+, pnpm 11+, and the GitHub Copilot CLI.
 3. Run `pnpm install`.
 4. Copy `.env.example` to `.env.local`.
 5. Use `AGENT_RUNTIME=mock` if Copilot authentication is unavailable.

@@ -89,7 +89,7 @@ describe("Workspace", () => {
     await screen.findByDisplayValue("C:\\workspace\\demo");
 
     expect(screen.getByPlaceholderText("Describe the outcome you want…")).not.toBeNull();
-    expect(screen.getByText("Max parallelism")).not.toBeNull();
+    expect(screen.getByLabelText("Max parallelism")).not.toBeNull();
     expect(screen.queryByText(/Copilot sessions/i)).toBeNull();
   });
 

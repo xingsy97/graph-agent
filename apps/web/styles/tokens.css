@@ -7,6 +7,8 @@
   --surface-hover: #f7f7fa;
   --surface-active: #e9e9ee;
   --surface-muted: rgba(118,118,128,.08);
+  --surface-tint: #f8f8fa;
+  --surface-blue: #eef6ff;
   --control-bg: rgba(118,118,128,.10);
   --control-active: #ffffff;
   --border: rgba(60,60,67,.15);
@@ -23,6 +25,9 @@
   --graph-grid: #c8c8ce;
   --graph-edge: #92929b;
   --graph-panel: #f5f5f8;
+  --edge-complete: #5f9b72;
+  --edge-transfer: #4295d0;
+  --edge-blocked: #ba7926;
   --minimap-node: #9b9ba5;
   --minimap-mask: rgba(245,245,248,.72);
   --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", sans-serif;
@@ -40,6 +45,7 @@
   --radius-xl: 22px;
   --shadow-card: 0 1px 2px rgba(0,0,0,.04), 0 8px 24px rgba(0,0,0,.07);
   --shadow-float: 0 18px 50px rgba(0,0,0,.14);
+  --shadow-control: 0 1px 2px rgba(0,0,0,.06);
   --blur: blur(28px) saturate(180%);
   --ease-out: cubic-bezier(.22,1,.36,1);
 }
@@ -53,6 +59,8 @@
   --surface-hover: #2c2c2e;
   --surface-active: #3a3a3c;
   --surface-muted: rgba(118,118,128,.16);
+  --surface-tint: #232326;
+  --surface-blue: #16283a;
   --control-bg: rgba(118,118,128,.22);
   --control-active: #4a4a4d;
   --border: rgba(255,255,255,.14);
@@ -69,8 +77,12 @@
   --graph-grid: #38383a;
   --graph-edge: #73737c;
   --graph-panel: #0b0b0c;
+  --edge-complete: #4f8c64;
+  --edge-transfer: #4ba1df;
+  --edge-blocked: #b78038;
   --minimap-node: #636366;
   --minimap-mask: rgba(11,11,12,.78);
   --shadow-card: 0 1px 2px rgba(0,0,0,.22), 0 8px 26px rgba(0,0,0,.34);
   --shadow-float: 0 20px 58px rgba(0,0,0,.48);
+  --shadow-control: 0 1px 2px rgba(0,0,0,.3);
 }

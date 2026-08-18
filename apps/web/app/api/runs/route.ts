@@ -18,7 +18,7 @@ export async function POST(request: Request): Promise<NextResponse> {
     return NextResponse.json({ error: "Task must contain 3–4,000 characters" }, { status: 400 });
   }
   if (typeof body.workspacePath !== "string") return NextResponse.json({ error: "Workspace path is required" }, { status: 400 });
-  const speed: RunSpeed = body.speed === "deliberate" || body.speed === "fast" ? body.speed : "balanced";
+  const speed: RunSpeed = body.speed === "deliberate" || body.speed === "balanced" ? body.speed : "fast";
   const workflow: WorkflowMode = body.workflow === "sequential" ? "sequential" : "adaptive";
   let workspacePath: string;
   try { workspacePath = await workspaceService.validate(body.workspacePath); }

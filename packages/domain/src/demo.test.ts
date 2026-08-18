@@ -8,7 +8,7 @@ describe("demo workflow seed", () => {
     assertDag(run.nodes.map((node) => node.id), run.edges);
     expect(run.nodes).toHaveLength(1);
     expect(run.nodes[0]).toMatchObject({ title: "Plan and decompose", status: "pending", stage: "Discover" });
-    expect(run).toMatchObject({ speed: "balanced", workflow: "adaptive", graphVersion: 1 });
+    expect(run).toMatchObject({ speed: "fast", workflow: "adaptive", graphVersion: 1 });
     expect(runnableNodeIds(run)).toEqual(["planner-demo-run"]);
   });
 

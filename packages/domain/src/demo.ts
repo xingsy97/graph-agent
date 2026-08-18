@@ -11,7 +11,7 @@ export function createDemoRun(
   workspacePath: string,
   runtime: TaskRun["runtime"],
   now = Date.now(),
-  options: Pick<TaskRun, "speed" | "workflow"> = { speed: "balanced", workflow: "adaptive" },
+  options: Pick<TaskRun, "speed" | "workflow"> = { speed: "fast", workflow: "adaptive" },
 ): TaskRun {
   const createdAt = new Date(now).toISOString();
   return {

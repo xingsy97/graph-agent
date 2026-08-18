@@ -60,7 +60,7 @@
 .node-progress { display: block; width: 100%; height: 3px; margin-top: 12px; overflow: hidden; border-radius: 2px; background: #26303a; }
 .node-progress i { display: block; width: 38%; height: 100%; background: #4eabf8; animation: indeterminate 1.8s ease-in-out infinite; }
 
-.react-flow__node { transition: opacity .3s ease; cursor: grab; }
+.react-flow__node { cursor: grab; }
 .react-flow__node.dragging { transition: none; cursor: grabbing; z-index: 20 !important; }
 .react-flow__handle { width: 9px; height: 9px; border: 2px solid #17191d; background: #737b87; }
 .react-flow__edge-path { stroke: #4d5561; stroke-width: 1.8; stroke-linecap: round; transition: stroke .3s ease, opacity .3s ease; }
@@ -86,11 +86,10 @@
 @keyframes stage-live { 50% { opacity: .25; transform: scale(.75); } }
 @keyframes indeterminate { 0% { transform: translateX(-110%); } 55%,100% { transform: translateX(250%); } }
 @keyframes handoff-edge-flow { from { stroke-dashoffset: 0; } to { stroke-dashoffset: -22; } }
-@keyframes node-materialize { from { opacity: 0; transform: translateY(18px) scale(.94); } }
+@keyframes node-materialize { from { transform: translateY(18px) scale(.94); } }
 @keyframes node-reflow-settle {
-  0% { opacity: .68; transform: translate(var(--reflow-x), var(--reflow-y)) scale(.975); filter: saturate(.72); }
-  55% { opacity: 1; }
-  100% { opacity: 1; transform: translate(0, 0) scale(1); filter: saturate(1); }
+  0% { transform: translate(var(--reflow-x), var(--reflow-y)) scale(.975); filter: saturate(.72); }
+  100% { transform: translate(0, 0) scale(1); filter: saturate(1); }
 }
 @keyframes edge-reveal { from { opacity: 0; stroke-dasharray: 0 1000; } to { opacity: 1; stroke-dasharray: 1000 0; } }
 @keyframes graph-reflow { 0% { opacity: .78; } 100% { opacity: 1; } }

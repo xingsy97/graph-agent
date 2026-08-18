@@ -50,7 +50,7 @@ class Orchestrator {
 
   private concurrencyFor(run: { speed: "deliberate" | "balanced" | "fast"; workflow: "adaptive" | "sequential" }): number {
     if (run.workflow === "sequential") return 1;
-    return { deliberate: 1, balanced: 2, fast: 4 }[run.speed];
+    return { deliberate: 10, balanced: 20, fast: 100 }[run.speed];
   }
 
   private async execute(runId: string, nodeId: string, executionId: number): Promise<void> {

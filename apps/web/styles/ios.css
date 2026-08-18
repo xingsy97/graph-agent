@@ -104,6 +104,10 @@
 .recent-replays strong, .recent-replays small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .recent-replays strong { font-size: 12px; }
 .recent-replays small { color: var(--text-secondary); font-size: 11px; }
+.recent-replays .live-run-card { border-color: rgba(52,199,89,.28); background: rgba(52,199,89,.07); }
+.recent-replays .live-run-card svg { color: var(--green); }
+.recent-replays .live-run-card small { display: flex; align-items: center; gap: 5px; }
+.recent-replays .live-run-card small i { width: 6px; height: 6px; flex: 0 0 auto; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 4px rgba(52,199,89,.12); animation: activity-rail 2.4s ease-in-out infinite; }
 .launch-controls { margin: 0; }
 .launch-controls label { min-height: 52px; border-radius: 14px; background: var(--surface-solid); box-shadow: var(--shadow-control); }
 .launch-controls label > span { color: var(--text-secondary); }

@@ -256,6 +256,7 @@ export function Workspace() {
   const [speed, setSpeed] = useState<RunSpeed>("fast");
   const [workspacePickerOpen, setWorkspacePickerOpen] = useState(false);
   const [run, setRun] = useState<TaskRun | null>(null);
+  const [liveRuns, setLiveRuns] = useState<TaskRun[]>([]);
   const [recordings, setRecordings] = useState<ReplaySummary[]>([]);
   const [recording, setRecording] = useState<ReplayRecording | null>(null);
   const [replayFrame, setReplayFrame] = useState(0);
@@ -328,6 +329,25 @@ export function Workspace() {
 
   useEffect(() => {
     void loadWorkspaces();
+    void fetch("/api/runs").then(async (response) => {
+      if (!response.ok) return;
+      const data = (await response.json()) as unknown;
+      if (!Array.isArray(data)) return;
+      const active = (data as TaskRun[])
+        .filter((item) => item.status === "running" || item.status === "paused")
+        .sort((left, right) => right.updatedAt.localeCompare(left.updatedAt));
+      setLiveRuns(active);
+      const latest = active[0];
+      if (latest) {
+        previousVersion.current = latest.graphVersion;
+        previousNodeIds.current = new Set(
+          latest.nodes
+            .filter((node) => node.status !== "replaced")
+            .map((node) => node.id),
+        );
+        setRun((current) => current ?? latest);
+      }
+    });
     void fetch("/api/replays").then(async (response) => {
       if (!response.ok) return;
       const data = (await response.json()) as { recordings?: ReplaySummary[] };
@@ -435,6 +455,24 @@ export function Workspace() {
     setReplayTimeMs(0);
     setReplayPlaying(true);
     setRun(loaded.frames[0]!.run);
+    setSelectedNodeId(null);
+    setContextView("overview");
+    setFocused(false);
+    setAutoFollow(true);
+    setMoreOpen(false);
+  };
+
+  const openLiveRun = (selected: TaskRun) => {
+    previousVersion.current = selected.graphVersion;
+    previousNodeIds.current = new Set(
+      selected.nodes
+        .filter((node) => node.status !== "replaced")
+        .map((node) => node.id),
+    );
+    setRecording(null);
+    setReplayPlaying(false);
+    setReplayTimeMs(0);
+    setRun(selected);
     setSelectedNodeId(null);
     setContextView("overview");
     setFocused(false);
@@ -919,6 +957,19 @@ export function Workspace() {
                           Replay · {item.task.slice(0, 28)}
                         </button>
                       ))}
+                    {liveRuns
+                      .filter((item) => item.id !== run.id)
+                      .slice(0, 3)
+                      .map((item) => (
+                        <button
+                          key={item.id}
+                          role="menuitem"
+                          onClick={() => openLiveRun(item)}
+                        >
+                          <LocateFixed size={15} />
+                          Live · {item.task.slice(0, 28)}
+                        </button>
+                      ))}
                     {!recording &&
                       ["running", "paused"].includes(run.status) && (
                         <>
@@ -1147,9 +1198,22 @@ export function Workspace() {
                         {workspaceError}
                       </p>
                     )}
-                    {recordings.length > 0 && (
+                    {(liveRuns.length > 0 || recordings.length > 0) && (
                       <div className="recent-replays">
-                        <span>Recorded runs</span>
+                        <span>Runs</span>
+                        {liveRuns.slice(0, 3).map((item) => (
+                          <button
+                            className="live-run-card"
+                            key={item.id}
+                            onClick={() => openLiveRun(item)}
+                          >
+                            <LocateFixed size={14} />
+                            <strong>{item.task}</strong>
+                            <small>
+                              <i /> {item.status} · Graph v{item.graphVersion}
+                            </small>
+                          </button>
+                        ))}
                         {recordings.slice(0, 3).map((item) => (
                           <button
                             key={item.id}

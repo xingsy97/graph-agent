@@ -160,6 +160,40 @@ describe("Workspace", () => {
     expect(screen.queryByText(/Copilot sessions/i)).toBeNull();
   });
 
+  it("restores the most recently updated active run after a page load", async () => {
+    const older = createRun({ id: "older-run", updatedAt: "2026-08-18T02:00:00.000Z" });
+    const latest = createRun({
+      id: "latest-run",
+      task: "Continue the active Todo build",
+      graphVersion: 7,
+      updatedAt: "2026-08-18T03:00:00.000Z",
+    });
+    fetchMock.mockImplementation((input: string) => {
+      if (input === "/api/workspaces")
+        return Promise.resolve(
+          new Response(
+            JSON.stringify({
+              workspaces: [{ path: latest.workspacePath, label: "Demo" }],
+              runtime: "mock",
+            }),
+          ),
+        );
+      if (input === "/api/runs")
+        return Promise.resolve(new Response(JSON.stringify([older, latest])));
+      if (input === "/api/replays")
+        return Promise.resolve(new Response(JSON.stringify({ recordings: [] })));
+      return Promise.resolve(new Response(null, { status: 404 }));
+    });
+
+    render(<Workspace />);
+
+    expect(await screen.findByText("Graph v7")).not.toBeNull();
+    expect(await screen.findByText("Continue the active Todo build")).not.toBeNull();
+    expect(MockEventSource.instances[0]?.url).toBe(
+      "/api/runs/latest-run/events",
+    );
+  });
+
   it("browses and confirms a working directory in a modal", async () => {
     render(<Workspace />);
     fireEvent.click(

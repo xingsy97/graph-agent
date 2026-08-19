@@ -52,6 +52,19 @@
   max-width: 980px;
 }
 
+.cover-video {
+  align-self: center;
+  background: #050609;
+  border: 1px solid var(--ga-line);
+  border-radius: 18px;
+  box-shadow: 0 22px 60px rgba(0, 0, 0, 0.34);
+  height: 430px;
+  justify-self: center;
+  margin-top: 18px;
+  object-fit: contain;
+  width: min(100%, 820px);
+}
+
 .slide-footer {
   bottom: 30px;
   color: var(--ga-muted);

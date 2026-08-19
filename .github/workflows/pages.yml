@@ -46,6 +46,15 @@ jobs:
       - name: Build presentation
         run: pnpm --filter @graph-agent/deck exec slidev build slides.md --base "/${{ github.event.repository.name }}/"
 
+      - name: Add demo media
+        shell: bash
+        run: |
+          cp docs/assets/graph-agent-demo-preview.png apps/deck/dist/graph-agent-demo-preview.png
+          curl --fail --location --retry 3 \
+            "https://github.com/${{ github.repository }}/releases/download/v0.1.0/Graph-Agent-Demo-Final-V4.mp4" \
+            --output apps/deck/dist/Graph-Agent-Demo-Final-V4.mp4
+          test -s apps/deck/dist/Graph-Agent-Demo-Final-V4.mp4
+
       - name: Configure Pages
         uses: actions/configure-pages@v5
         with:

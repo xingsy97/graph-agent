@@ -16,7 +16,10 @@ favicon: /graph-agent-icon.svg
 
 ## A graph-based agent that's easier to understand, faster to execute, and smarter by design.
 
-<GraphScene variant="overview" />
+<video class="cover-video" controls playsinline preload="metadata" :poster="'./graph-agent-demo-preview.png'">
+  <source :src="'./Graph-Agent-Demo-Final-V4.mp4'" type="video/mp4">
+  Your browser does not support HTML video.
+</video>
 
 <div class="slide-footer">github.com/xingsy97/graph-agent</div>
 
@@ -188,7 +191,7 @@ class: demo-slide
   <span>Plan</span><i>→</i><span>Fan out</span><i>→</i><span>Rewrite</span><i>→</i><span>Converge</span><i>→</i><span>Verify</span>
 </div>
 
-<a class="demo-link" href="https://github.com/xingsy97/graph-agent/releases/download/v0.1.0/Graph-Agent-Demo-Final-V4.mp4">Watch the 3-minute replay →</a>
+<a class="demo-link" href="https://xingsy97.github.io/graph-agent/">Watch the 3-minute replay →</a>
 
 <!--
 The published demo is a replay of a completed real run.

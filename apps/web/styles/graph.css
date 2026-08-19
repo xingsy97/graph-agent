@@ -1,6 +1,6 @@
 .graph-toolbar {
   position: absolute; z-index: 8; top: 10px; left: 14px; right: 14px;
-  display: grid; grid-template-columns: auto minmax(360px, 680px) auto; align-items: center; gap: 14px;
+  display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 14px;
   pointer-events: none;
 }
 .graph-toolbar > * { pointer-events: auto; }
@@ -19,15 +19,6 @@
 .history-button { height: 36px; display: flex; align-items: center; gap: 7px; padding: 0 10px; border: 1px solid #31353c; border-radius: 7px; color: #aeb4bd; background: #14161a; font-size: 13px; }
 .history-button:hover { color: #f4f6f8; border-color: #4b515c; background: #1b1e23; }
 .follow-toggle.active { color: #dff2ff; border-color: #346b91; background: #183149; box-shadow: inset 0 0 0 1px rgba(79,165,225,.12); }
-
-.stage-legend { min-width: 0; height: 38px; display: grid; grid-template-columns: repeat(5, 1fr); border: 1px solid #2c3037; border-radius: 7px; background: #111317; }
-.stage-legend button { position: relative; min-width: 0; display: flex; align-items: center; justify-content: center; gap: 6px; border: 0; border-right: 1px solid #292d33; color: #818894; background: transparent; font-size: 12px; font-weight: 600; letter-spacing: .025em; }
-.stage-legend button:last-child { border-right: 0; }
-.stage-legend button:hover { color: #dfe3e8; background: #191c21; }
-.stage-legend button.active { color: #fff; background: #22262c; }
-.stage-legend small { color: #5f6671; font: 11px var(--font-mono); }
-.stage-legend button.active small { color: #9aa2ad; }
-.stage-legend i { position: absolute; right: 8px; width: 5px; height: 5px; border-radius: 50%; background: #369eff; animation: stage-live 1.1s ease-in-out infinite; }
 
 .focus-banner { position: absolute; z-index: 8; top: 62px; left: 50%; display: flex; align-items: center; gap: 9px; padding: 8px 9px 8px 11px; border: 1px solid #35506c; border-radius: 7px; background: #15202b; transform: translateX(-50%); box-shadow: 0 8px 20px rgba(0,0,0,.3); }
 .focus-banner span { color: #7ebeff; font-size: 12px; }.focus-banner strong { max-width: 240px; overflow: hidden; font-size: 13px; text-overflow: ellipsis; white-space: nowrap; }.focus-banner button { height: 26px; border: 1px solid #416b96; border-radius: 5px; color: #e8f4ff; background: #244d75; font-size: 12px; }
@@ -54,11 +45,12 @@
 .state-running .node-symbol, .state-ready .node-symbol { color: white; background: #137edb; }.state-waiting_user { border-color: #9a6a25; }.state-waiting_user .node-symbol { color: #171008; background: #e7a23d; }.state-succeeded .node-symbol { color: #07150c; background: #37c975; }.state-failed .node-symbol { color: white; background: #e6504a; }.state-expanding { border-color: #795495; }.state-expanding .node-symbol { color: white; background: #8756aa; }
 
 /* One quiet, persistent signal for active work; dependency handoff remains a separate, brief event. */
-.task-node.state-running { border-color: #4d9dde; background: linear-gradient(145deg, #192735 0%, #151a20 74%); animation: running-node-breathe 2.4s ease-in-out infinite; }
-.task-node.state-running::before { content: ""; position: absolute; z-index: 3; top: 12px; bottom: 12px; left: -1px; width: 3px; border-radius: 0 2px 2px 0; background: linear-gradient(180deg, rgba(92,183,255,.3), #4dafff, rgba(92,183,255,.3)); box-shadow: 1px 0 8px rgba(49,160,255,.38); animation: activity-rail 2.4s ease-in-out infinite; }
-.task-node.state-running .node-symbol { position: relative; box-shadow: 0 0 0 3px rgba(39,156,255,.14); }
-.node-progress { display: block; width: 100%; height: 3px; margin-top: 12px; overflow: hidden; border-radius: 2px; background: #26303a; }
-.node-progress i { display: block; width: 38%; height: 100%; background: #4eabf8; animation: indeterminate 1.8s ease-in-out infinite; }
+.task-node.state-running { border-color: #4d9dde; background: linear-gradient(145deg, #192735 0%, #151a20 74%); }
+.task-node.state-running::before { content: ""; position: absolute; z-index: 3; top: 12px; bottom: 12px; left: -1px; width: 4px; border-radius: 0 3px 3px 0; background: linear-gradient(180deg, rgba(92,183,255,.16), #4dafff 45%, white 50%, #4dafff 55%, rgba(92,183,255,.16)); background-size: 100% 240%; box-shadow: 1px 0 10px rgba(49,160,255,.42); animation: activity-rail 1.25s linear infinite; }
+.task-node.state-running .node-symbol { position: relative; display: inline-flex; align-items: center; justify-content: center; color: transparent; box-shadow: 0 0 0 3px rgba(39,156,255,.14); }
+.task-node.state-running .node-symbol::after { content: ""; width: 11px; height: 11px; box-sizing: border-box; border: 2px solid rgba(255,255,255,.42); border-top-color: white; border-right-color: white; border-radius: 50%; will-change: transform; animation: running-symbol-spin .72s linear infinite; }
+.node-progress { display: block; width: 100%; height: 5px; margin-top: 12px; overflow: hidden; border-radius: 999px; background: #26303a; }
+.node-progress i { display: block; width: 46%; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #248ee8, #8ed0ff, #248ee8); box-shadow: 0 0 8px rgba(49,160,255,.38); animation: indeterminate 1.15s ease-in-out infinite; }
 
 .react-flow__node { cursor: grab; }
 .react-flow__node.dragging { transition: none; cursor: grabbing; z-index: 20 !important; }
@@ -72,31 +64,19 @@
 
 .graph-toast { position: absolute; z-index: 12; right: 18px; bottom: 18px; width: 330px; display: flex; align-items: center; gap: 11px; padding: 12px; border: 1px solid #4b3b56; border-radius: 8px; color: white; background: #211c25; box-shadow: 0 12px 30px rgba(0,0,0,.36); text-align: left; animation: toast-in .3s ease-out; }.graph-toast > span { width: 32px; height: 32px; display: grid; place-items: center; border-radius: 6px; color: #c895e1; background: #35273d; }.graph-toast > div { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 3px; }.graph-toast strong { font-size: 13px; }.graph-toast small { overflow: hidden; color: #a6adb7; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }.graph-toast > i { color: #c895e1; font-size: 12px; font-style: normal; }
 .task-node.is-new { animation: node-materialize .7s cubic-bezier(.2,.8,.2,1) both; }
-.task-node.is-reflowing { animation: node-reflow-settle .76s cubic-bezier(.22,.78,.18,1) both; will-change: transform, opacity; }
-.task-node.state-running.is-new {
-  animation:
-    node-materialize .7s cubic-bezier(.2,.8,.2,1) both,
-    running-node-breathe 1.25s ease-in-out .7s infinite;
-}
-.graph-is-updating .react-flow__edge-path { animation: edge-reveal .8s ease-out both; }
-.graph-is-updating .graph-canvas { animation: graph-reflow .55s ease-out; }
-
-@keyframes activity-rail { 50% { opacity: .55; transform: scaleY(.72); } }
-@keyframes running-node-breathe { 50% { border-color: #68afe9; box-shadow: 0 0 0 2px rgba(43,151,247,.1), 0 9px 24px rgba(15,111,194,.2); } }
-@keyframes stage-live { 50% { opacity: .25; transform: scale(.75); } }
+.task-node.is-exiting { pointer-events: none; animation: node-dematerialize 2.55s linear both; }
+.edge-is-new .react-flow__edge-path { animation: edge-materialize .7s ease-out both; }
+@keyframes activity-rail { to { background-position: 0 -200%; } }
+@keyframes running-symbol-spin { to { transform: rotate(360deg); } }
 @keyframes indeterminate { 0% { transform: translateX(-110%); } 55%,100% { transform: translateX(250%); } }
 @keyframes handoff-edge-flow { from { stroke-dashoffset: 0; } to { stroke-dashoffset: -22; } }
-@keyframes node-materialize { from { transform: translateY(18px) scale(.94); } }
-@keyframes node-reflow-settle {
-  0% { transform: translate(var(--reflow-x), var(--reflow-y)) scale(.975); filter: saturate(.72); }
-  100% { transform: translate(0, 0) scale(1); filter: saturate(1); }
-}
-@keyframes edge-reveal { from { opacity: 0; stroke-dasharray: 0 1000; } to { opacity: 1; stroke-dasharray: 1000 0; } }
-@keyframes graph-reflow { 0% { opacity: .78; } 100% { opacity: 1; } }
+@keyframes node-materialize { from { opacity: 0; transform: translateY(14px) scale(.96); } }
+@keyframes node-dematerialize { 0%,72% { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(.97); } }
+@keyframes edge-materialize { from { opacity: 0; } }
 @keyframes toast-in { from { opacity: 0; transform: translateY(8px); } }
 
 @media (prefers-reduced-motion: reduce) {
-  .task-node.state-running, .task-node.state-running::before, .node-progress i, .stage-legend i, .handoff-edge-flow { animation: none; }
+  .task-node.state-running::before, .task-node.state-running .node-symbol::after, .node-progress i, .handoff-edge-flow { animation: none; }
 }
-@media (max-width: 1250px) { .stage-legend { display: none; }.graph-toolbar { grid-template-columns: 1fr auto; }.history-button:last-child { display: none; } }
-@media (max-width: 760px) { .graph-toolbar { left: 8px; right: 8px; grid-template-columns: auto 1fr; }.stage-legend { display: none; }.graph-tools { display: none; }.task-node { width: 248px; }.react-flow__minimap { display: none; }.graph-toast { right: 10px; bottom: 10px; width: calc(100% - 20px); } }
+@media (max-width: 1250px) { .history-button:last-child { display: none; } }
+@media (max-width: 760px) { .graph-toolbar { left: 8px; right: 8px; grid-template-columns: auto 1fr; }.graph-tools { display: none; }.task-node { width: 248px; }.react-flow__minimap { display: none; }.graph-toast { right: 10px; bottom: 10px; width: calc(100% - 20px); } }

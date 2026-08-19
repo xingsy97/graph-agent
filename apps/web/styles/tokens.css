@@ -19,6 +19,8 @@
   --blue: #007aff;
   --blue-strong: #0071e3;
   --green: #248a3d;
+  --success-muted: #667d6d;
+  --success-on-muted: #f7faf8;
   --orange: #c65d00;
   --red: #d70015;
   --purple: #8944ab;
@@ -71,6 +73,8 @@
   --blue: #0a84ff;
   --blue-strong: #0a84ff;
   --green: #30d158;
+  --success-muted: #58705f;
+  --success-on-muted: #f2f7f3;
   --orange: #ff9f0a;
   --red: #ff453a;
   --purple: #bf5af2;

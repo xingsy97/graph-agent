@@ -155,8 +155,16 @@ describe("Workspace", () => {
     expect(
       screen.getByPlaceholderText("Describe the outcome you want…"),
     ).not.toBeNull();
+    expect(screen.getByLabelText("Task").tagName).toBe("TEXTAREA");
     expect(screen.getByLabelText("Max parallelism")).not.toBeNull();
     expect(screen.queryByLabelText("Workflow")).toBeNull();
+    expect(screen.queryByLabelText("Workflow stages")).toBeNull();
+    expect(
+      screen.getByRole("heading", {
+        name: /Easier to understand.*Faster to execute. Smarter by design/,
+      }),
+    ).not.toBeNull();
+    expect(screen.queryByText(/Describe the outcome once/)).toBeNull();
     expect(screen.queryByText(/Copilot sessions/i)).toBeNull();
   });
 
@@ -344,6 +352,7 @@ describe("Workspace", () => {
     });
 
     render(<Workspace />);
+    expect(await screen.findByText("History")).not.toBeNull();
     fireEvent.click(await screen.findByRole("button", { name: /Replay the Todo build/ }));
     expect(await screen.findByLabelText("Pause replay")).not.toBeNull();
     expect(await screen.findByRole("button", { name: "Plan Todo architecture" })).not.toBeNull();
@@ -355,6 +364,8 @@ describe("Workspace", () => {
 
     fireEvent.change(screen.getByLabelText("Replay timeline"), { target: { value: "0" } });
     await waitFor(() => expect(screen.queryByText(decision.question)).toBeNull());
-    expect(flowProps?.nodes.map((node) => node.id)).toEqual(["plan"]);
+    await waitFor(() =>
+      expect(flowProps?.nodes.map((node) => node.id)).toEqual(["plan"]),
+    );
   });
 });

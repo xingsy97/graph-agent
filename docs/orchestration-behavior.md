@@ -147,7 +147,7 @@ new ID and fresh graph version 1.
    /api/replays/:runId` returns the complete ordered timeline or HTTP 404.
 4. Opening Replay starts at offset zero and plays automatically. Its virtual
    clock uses original timing at 1× and supports pause, restart, scrubbing,
-   and 0.5×, 1×, 2×, or 4× speed. Scrubbing backward restores the exact older
+   and 0.5×, 1×, 2×, 4×, 10×, or 15× speed. Scrubbing backward restores the exact older
    graph, node states, event history, decisions, metrics, and outputs.
 5. Replay drives the same graph layout, graph-rewrite transitions, camera
    follow, running-node animation, and dependency-transfer animation as a live

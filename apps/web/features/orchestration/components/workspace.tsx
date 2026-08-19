@@ -27,8 +27,8 @@ import {
   ChevronsUp,
   CircleAlert,
   Clock3,
+  Copy,
   FolderOpen,
-  GitBranch,
   History,
   LayoutGrid,
   LocateFixed,
@@ -38,11 +38,10 @@ import {
   Plus,
   RotateCcw,
   Sparkles,
-  Workflow,
   X,
 } from "lucide-react";
 import { ActivityConsole } from "./activity-console";
-import { BrandMark } from "./brand-mark";
+import { BrandMark, GraphGlyph } from "./brand-mark";
 import { ContextPanel, type ContextView } from "./context-panel";
 import { GraphEdge } from "./graph-edge";
 import { TaskNode, type TaskNodeData } from "./task-node";
@@ -115,20 +114,8 @@ function visibleIds(
 
 const TRANSFER_ANIMATION_MS = 2200;
 const TRANSFER_FLOW_CYCLE_MS = 1600;
-const REFLOW_DISTANCE = 30;
 const REFLOW_ANIMATION_MS = 760;
-
-function boundedReflowDelta(
-  from: { x: number; y: number },
-  to: { x: number; y: number },
-): { x: number; y: number } {
-  const deltaX = from.x - to.x;
-  const deltaY = from.y - to.y;
-  const distance = Math.hypot(deltaX, deltaY);
-  if (distance <= REFLOW_DISTANCE) return { x: deltaX, y: deltaY };
-  const scale = REFLOW_DISTANCE / distance;
-  return { x: deltaX * scale, y: deltaY * scale };
-}
+const CAMERA_FOLLOW_MS = 2400;
 
 export function isDependencyTransferring(
   edge: TaskEdge,
@@ -204,6 +191,15 @@ function graphElements(
     const transferElapsed = edge.transferStartedAt
       ? Math.max(0, now - new Date(edge.transferStartedAt).getTime())
       : 0;
+    const stateClass = blocked
+      ? "edge-blocked"
+      : transferring
+        ? "edge-transferring"
+        : complete
+          ? "edge-complete"
+          : "";
+    const isNew =
+      recentlyAdded.has(edge.source) || recentlyAdded.has(edge.target);
     return {
       id: edge.id,
       source: edge.source,
@@ -213,13 +209,9 @@ function graphElements(
       // A dependency moves only during the bounded handoff that starts its target node.
       animated: transferring && !blocked,
       data: { animationDelayMs: -(transferElapsed % TRANSFER_FLOW_CYCLE_MS) },
-      className: blocked
-        ? "edge-blocked"
-        : transferring
-          ? "edge-transferring"
-          : complete
-            ? "edge-complete"
-            : "",
+      className: [stateClass, isNew ? "edge-is-new" : ""]
+        .filter(Boolean)
+        .join(" "),
     };
   });
   return { nodes, edges };
@@ -240,6 +232,10 @@ function runSummary(run: TaskRun): string {
   if (running[0])
     return `${running[0].title} is active; dependent work will begin automatically.`;
   return "Evaluating dependencies and preparing the next workstream.";
+}
+
+function taskHeadline(task: string): string {
+  return task.match(/^.*?[.!?](?:\s|$)/)?.[0].trim() ?? task.trim();
 }
 
 export function Workspace() {
@@ -270,11 +266,9 @@ export function Workspace() {
   const [contextView, setContextView] = useState<ContextView>("overview");
   const [focused, setFocused] = useState(false);
   const [graphToast, setGraphToast] = useState<string | null>(null);
-  const [graphAnimating, setGraphAnimating] = useState(false);
   const [recentlyAdded, setRecentlyAdded] = useState<Set<string>>(new Set());
   const [moreOpen, setMoreOpen] = useState(false);
   const [flowNodes, setFlowNodes] = useState<Node<TaskNodeData>[]>([]);
-  const [activeStage, setActiveStage] = useState<TaskStage | null>(null);
   const [layoutPerspective, setLayoutPerspective] =
     useState<LayoutPerspective>("topology");
   const [autoFollow, setAutoFollow] = useState(true);
@@ -291,7 +285,10 @@ export function Workspace() {
   > | null>(null);
   const flowNodesRef = useRef<Node<TaskNodeData>[]>([]);
   const layoutScope = useRef("");
-  const reflowTimer = useRef<number | null>(null);
+  const layoutGraphVersion = useRef<number | null>(null);
+  const reflowAnimation = useRef<number | null>(null);
+  const exitTimer = useRef<number | null>(null);
+  const exitingNodes = useRef<Node<TaskNodeData>[]>([]);
   const previousVersion = useRef<number | null>(null);
   const previousNodeIds = useRef<Set<string>>(new Set());
   const surfacedDecision = useRef<string | null>(null);
@@ -502,12 +499,8 @@ export function Workspace() {
           [...currentIds].filter((id) => !previousNodeIds.current.has(id)),
         ),
       );
-      setGraphAnimating(true);
       const toastTimer = setTimeout(() => setGraphToast(null), 5000);
-      const animationTimer = setTimeout(() => {
-        setGraphAnimating(false);
-        setRecentlyAdded(new Set());
-      }, 1400);
+      const animationTimer = setTimeout(() => setRecentlyAdded(new Set()), 1400);
       previousVersion.current = run.graphVersion;
       previousNodeIds.current = currentIds;
       return () => {
@@ -681,71 +674,107 @@ export function Workspace() {
   const scope = `${run?.id ?? "empty"}:${run?.graphVersion ?? 0}:${layoutPerspective}:${graphViewport.width}x${graphViewport.height}:${focused ? (selectedNodeId ?? "none") : "all"}`;
   const viewScope = `${run?.id ?? "empty"}:${layoutPerspective}:${graphViewport.width}x${graphViewport.height}:${focused ? (selectedNodeId ?? "none") : "all"}`;
   useEffect(() => {
-    // React may replay updater functions in development. Resolve and record
-    // the scope before entering the updater so replay cannot preserve stale
-    // coordinates and place two nodes into the same layout slot.
     const keepPositions = layoutScope.current === scope;
     layoutScope.current = scope;
-    setFlowNodes((current) => {
-      const previousNodes = new Map(current.map((node) => [node.id, node]));
-      const next = elements.nodes.map((node) => {
-        const previous = previousNodes.get(node.id);
-        if (keepPositions && previous)
+    const graphVersion = run?.graphVersion ?? 0;
+    const isForwardGraphChange =
+      layoutGraphVersion.current !== null &&
+      graphVersion > layoutGraphVersion.current;
+    layoutGraphVersion.current = graphVersion;
+    const previousNodes = new Map(
+      flowNodesRef.current.map((node) => [node.id, node]),
+    );
+    if (keepPositions) {
+      setFlowNodes(
+        [
+          ...elements.nodes.map((node) => ({
+            ...node,
+            position: previousNodes.get(node.id)?.position ?? node.position,
+          })),
+          ...exitingNodes.current,
+        ],
+      );
+      return;
+    }
+
+    if (reflowAnimation.current)
+      window.cancelAnimationFrame(reflowAnimation.current);
+    const targets = new Map(
+      elements.nodes.map((node) => [node.id, node.position]),
+    );
+    const starts = new Map<string, { x: number; y: number }>();
+    const nextIds = new Set(elements.nodes.map((node) => node.id));
+    const exiting = isForwardGraphChange
+      ? [...previousNodes.values()]
+          .filter((node) => !nextIds.has(node.id) && !node.data.exiting)
+          .map((node) => ({
+            ...node,
+            draggable: false,
+            selectable: false,
+            data: { ...node.data, isNew: false, exiting: true },
+          }))
+      : [];
+    exitingNodes.current = exiting;
+    const initial = elements.nodes.map((node) => {
+      const previous = previousNodes.get(node.id);
+      if (!previous || node.data.isNew) return node;
+      starts.set(node.id, previous.position);
+      return { ...node, position: previous.position };
+    });
+    setFlowNodes([...initial, ...exiting]);
+    if (exitTimer.current) window.clearTimeout(exitTimer.current);
+    if (exiting.length)
+      exitTimer.current = window.setTimeout(() => {
+        exitingNodes.current = [];
+        setFlowNodes((nodes) => nodes.filter((node) => !node.data.exiting));
+        exitTimer.current = null;
+      }, CAMERA_FOLLOW_MS + 150);
+    if (starts.size === 0) return;
+
+    const startedAt = performance.now();
+    const animate = (now: number) => {
+      const progress = Math.min(1, (now - startedAt) / REFLOW_ANIMATION_MS);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setFlowNodes((nodes) =>
+        nodes.map((node) => {
+          const start = starts.get(node.id);
+          const target = targets.get(node.id);
+          if (!start || !target) return node;
           return {
             ...node,
-            position: previous.position,
-            data: {
-              ...node.data,
-              reflowing: previous.data.reflowing ?? false,
-              reflowX: previous.data.reflowX ?? 0,
-              reflowY: previous.data.reflowY ?? 0,
+            position: {
+              x: start.x + (target.x - start.x) * eased,
+              y: start.y + (target.y - start.y) * eased,
             },
           };
-        if (!previous || node.data.isNew) return node;
-        const delta = boundedReflowDelta(previous.position, node.position);
-        const moved = Math.abs(delta.x) > 1 || Math.abs(delta.y) > 1;
-        return {
-          ...node,
-          data: {
-            ...node.data,
-            reflowing: moved,
-            reflowX: delta.x,
-            reflowY: delta.y,
-          },
-        };
-      });
-      if (!keepPositions && next.some((node) => node.data.reflowing)) {
-        if (reflowTimer.current) window.clearTimeout(reflowTimer.current);
-        reflowTimer.current = window.setTimeout(() => {
-          setFlowNodes((nodes) =>
-            nodes.map((node) => ({
-              ...node,
-              data: { ...node.data, reflowing: false, reflowX: 0, reflowY: 0 },
-            })),
-          );
-          reflowTimer.current = null;
-        }, REFLOW_ANIMATION_MS);
-      }
-      return next;
-    });
+        }),
+      );
+      if (progress < 1)
+        reflowAnimation.current = window.requestAnimationFrame(animate);
+      else reflowAnimation.current = null;
+    };
+    reflowAnimation.current = window.requestAnimationFrame(animate);
   }, [elements.nodes, scope]);
   useEffect(
     () => () => {
-      if (reflowTimer.current) window.clearTimeout(reflowTimer.current);
+      if (reflowAnimation.current)
+        window.cancelAnimationFrame(reflowAnimation.current);
+      if (exitTimer.current) window.clearTimeout(exitTimer.current);
+      exitingNodes.current = [];
     },
     [],
   );
   useEffect(() => {
     flowNodesRef.current = flowNodes;
   }, [flowNodes]);
-  const fitGraph = useCallback(() => {
-    if (!flowInstance.current || flowNodesRef.current.length === 0) return;
+  const fitGraph = useCallback((duration = 1600, nodes = flowNodesRef.current) => {
+    if (!flowInstance.current || nodes.length === 0) return;
     void flowInstance.current.fitView({
-      nodes: flowNodesRef.current,
+      nodes,
       padding: focused ? 0.24 : 0.08,
-      duration: 1050,
-      ease: (time) => 1 - Math.pow(1 - time, 4),
-      interpolate: "smooth",
+      duration,
+      ease: (time) => time,
+      interpolate: "linear",
       minZoom: focused ? 0.82 : 0.64,
       maxZoom: focused ? 1.02 : 0.92,
     });
@@ -756,8 +785,19 @@ export function Workspace() {
   }, [viewScope, fitGraph]);
   useEffect(() => {
     if (!autoFollow) return;
-    const timer = window.setTimeout(fitGraph, REFLOW_ANIMATION_MS + 90);
-    return () => window.clearTimeout(timer);
+    const targetPositions = new Map(
+      elements.nodes.map((node) => [node.id, node.position]),
+    );
+    const followTimer = window.setTimeout(() => {
+      const measuredTargets = (flowInstance.current?.getNodes() ?? [])
+        .filter((node) => targetPositions.has(node.id))
+        .map((node) => ({
+          ...node,
+          position: targetPositions.get(node.id)!,
+        }));
+      fitGraph(CAMERA_FOLLOW_MS, measuredTargets);
+    }, 80);
+    return () => window.clearTimeout(followTimer);
   }, [run?.graphVersion, autoFollow, fitGraph]);
   const onNodesChange = useCallback(
     (changes: NodeChange<Node<TaskNodeData>>[]) =>
@@ -765,7 +805,6 @@ export function Workspace() {
     [],
   );
   const resetLayout = () => {
-    setActiveStage(null);
     setFlowNodes(elements.nodes);
     window.setTimeout(
       () =>
@@ -780,26 +819,8 @@ export function Workspace() {
     );
   };
   const changeLayoutPerspective = (perspective: LayoutPerspective) => {
-    setActiveStage(null);
     setFocused(false);
     setLayoutPerspective(perspective);
-  };
-  const showStage = (stage: TaskStage) => {
-    setFocused(false);
-    setActiveStage(stage);
-    window.setTimeout(() => {
-      const ids = elements.nodes
-        .filter((node) => node.data.stage === stage)
-        .map(({ id }) => ({ id }));
-      if (ids.length)
-        flowInstance.current?.fitView({
-          nodes: ids,
-          padding: 0.42,
-          duration: 650,
-          minZoom: 0.82,
-          maxZoom: 1.04,
-        });
-    }, 40);
   };
   const selectedNode = run?.nodes.find((node) => node.id === selectedNodeId);
   const active = run?.nodes.filter((node) => node.status !== "replaced") ?? [];
@@ -831,8 +852,8 @@ export function Workspace() {
           </span>
         </a>
         {run && (
-          <div className="run-title">
-            <strong>{run.task}</strong>
+          <div className="run-title" title={run.task}>
+            <strong>{taskHeadline(run.task)}</strong>
             <span>
               <i className={`run-dot status-${run.status}`} />
               {run.runtime} · {run.status} · {complete}/{active.length} ·{" "}
@@ -931,7 +952,7 @@ export function Workspace() {
                         setMoreOpen(false);
                       }}
                     >
-                      <GitBranch size={15} />
+                      <Copy size={15} />
                       Copy Run ID
                     </button>
                     <button
@@ -1027,7 +1048,7 @@ export function Workspace() {
                     onClick={() => selectNode(node.id)}
                   >
                     <i />
-                    {node.title}
+                    <span>{node.title}</span>
                   </button>
                 ))}
                 {runningTasks.length > 3 && (
@@ -1078,10 +1099,7 @@ export function Workspace() {
       <section
         className={`workspace-grid ${run ? "with-context" : "without-context"}`}
       >
-        <div
-          ref={graphPanelRef}
-          className={`graph-panel ${graphAnimating ? "graph-is-updating" : ""}`}
-        >
+        <div ref={graphPanelRef} className="graph-panel">
           {!run ? (
             workspacesLoading ? (
               <div className="empty-state launch-loading" role="status">
@@ -1112,34 +1130,31 @@ export function Workspace() {
                 <DagWatermark />
                 <div className="empty-graphic" aria-hidden="true">
                   <span className="empty-graphic-root">
-                    <Workflow size={25} />
-                  </span>
-                  <i />
-                  <span>
-                    <GitBranch size={19} />
-                  </span>
-                  <i />
-                  <span>
-                    <Sparkles size={18} />
+                    <GraphGlyph size={33} />
                   </span>
                 </div>
-                <div className="eyebrow">Adaptive task orchestration</div>
-                <h1>Turn work into a living graph</h1>
-                <p>
-                  Describe an outcome once. The planner maps dependencies, runs
-                  independent work in parallel, and pauses only for decisions
-                  that need you.
-                </p>
+                <div className="eyebrow">Graph Agent</div>
+                <h1>
+                  Easier to understand.
+                  <br />
+                  Faster to execute. Smarter by design.
+                </h1>
                 <section className="command-bar" aria-label="Create a run">
                   <div className="launch-composer">
                     <div className="task-input">
                       <Sparkles className="sparkle" size={19} />
-                      <input
+                      <textarea
                         suppressHydrationWarning
+                        aria-label="Task"
+                        rows={4}
                         value={task}
                         onChange={(event) => setTask(event.target.value)}
                         onKeyDown={(event) => {
-                          if (event.key === "Enter") void createRun();
+                          if (
+                            event.key === "Enter" &&
+                            (event.ctrlKey || event.metaKey)
+                          )
+                            void createRun();
                         }}
                         placeholder="Describe the outcome you want…"
                       />
@@ -1200,7 +1215,7 @@ export function Workspace() {
                     )}
                     {(liveRuns.length > 0 || recordings.length > 0) && (
                       <div className="recent-replays">
-                        <span>Runs</span>
+                        <span>History</span>
                         {liveRuns.slice(0, 3).map((item) => (
                           <button
                             className="live-run-card"
@@ -1239,8 +1254,8 @@ export function Workspace() {
                 <div className="graph-view-controls">
                   <div className="segmented-control">
                     <button
-                      className={!focused && !activeStage ? "active" : ""}
-                      aria-pressed={!focused && !activeStage}
+                      className={!focused ? "active" : ""}
+                      aria-pressed={!focused}
                       onClick={() => {
                         setFocused(false);
                         resetLayout();
@@ -1253,7 +1268,6 @@ export function Workspace() {
                       aria-pressed={focused}
                       disabled={!selectedNodeId}
                       onClick={() => {
-                        setActiveStage(null);
                         setFocused(true);
                       }}
                     >
@@ -1271,7 +1285,7 @@ export function Workspace() {
                       aria-pressed={layoutPerspective === "topology"}
                       onClick={() => changeLayoutPerspective("topology")}
                     >
-                      <GitBranch size={14} />
+                      <GraphGlyph size={15} />
                       Topology
                     </button>
                     <button
@@ -1284,41 +1298,6 @@ export function Workspace() {
                     </button>
                   </div>
                 </div>
-                {!focused && (
-                  <nav className="stage-legend" aria-label="Workflow stages">
-                    {stages.map((stage) => {
-                      const stageNodes = active.filter(
-                        (node) =>
-                          (node.stage ??
-                            inferredStage(
-                              node,
-                              node.depth,
-                              Math.max(1, ...active.map((item) => item.depth)),
-                            )) === stage,
-                      );
-                      return (
-                        <button
-                          key={stage}
-                          className={activeStage === stage ? "active" : ""}
-                          onClick={() => showStage(stage)}
-                        >
-                          <span>{stage}</span>
-                          <small>
-                            {
-                              stageNodes.filter(
-                                (node) => node.status === "succeeded",
-                              ).length
-                            }
-                            /{stageNodes.length}
-                          </small>
-                          {stageNodes.some(
-                            (node) => node.status === "running",
-                          ) && <i />}
-                        </button>
-                      );
-                    })}
-                  </nav>
-                )}
                 <div className="graph-tools">
                   <button
                     className={`history-button follow-toggle ${autoFollow ? "active" : ""}`}
@@ -1378,13 +1357,11 @@ export function Workspace() {
                 onMoveStart={(event) => {
                   if (event) setAutoFollow(false);
                 }}
-                onNodeDragStart={() => setActiveStage(null)}
                 onNodeClick={(_, node) => selectNode(node.id)}
                 onPaneClick={() => {
                   setSelectedNodeId(null);
                   setContextView("overview");
                   setFocused(false);
-                  setActiveStage(null);
                 }}
                 minZoom={0.45}
                 maxZoom={1.35}

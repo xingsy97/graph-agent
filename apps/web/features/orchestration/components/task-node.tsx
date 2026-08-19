@@ -1,4 +1,3 @@
-import type { CSSProperties } from "react";
 import { Handle, Position, type NodeProps } from "@xyflow/react";
 import type { NodeStatus, TaskStage } from "@graph-agent/domain";
 import {
@@ -27,9 +26,7 @@ export interface TaskNodeData extends Record<string, unknown> {
   sourcePosition: LayoutHandlePosition;
   targetPosition: LayoutHandlePosition;
   estimatedDurationMinutes?: number;
-  reflowing?: boolean;
-  reflowX?: number;
-  reflowY?: number;
+  exiting?: boolean;
 }
 
 const handlePositions: Record<LayoutHandlePosition, Position> = {
@@ -70,13 +67,7 @@ export function TaskNode({ data }: NodeProps) {
   );
   return (
     <div
-      className={`task-node state-${value.status} stage-${value.stage.toLowerCase()} ${value.selected ? "is-selected" : ""} ${value.isNew ? "is-new" : ""} ${value.reflowing && !value.isNew ? "is-reflowing" : ""}`}
-      style={
-        {
-          "--reflow-x": `${value.reflowX ?? 0}px`,
-          "--reflow-y": `${value.reflowY ?? 0}px`,
-        } as CSSProperties
-      }
+      className={`task-node state-${value.status} stage-${value.stage.toLowerCase()} ${value.selected ? "is-selected" : ""} ${value.isNew ? "is-new" : ""} ${value.exiting ? "is-exiting" : ""}`}
       aria-label={`${value.title}, ${value.status.replace("_", " ")}, ${value.progress}`}
     >
       <Handle type="target" position={targetPosition} />
@@ -89,7 +80,7 @@ export function TaskNode({ data }: NodeProps) {
       <div className="node-topline">
         <span>
           <i className="node-symbol" aria-hidden="true">
-            {symbols[value.status]}
+            {value.status === "running" ? null : symbols[value.status]}
           </i>
           {value.status.replace("_", " ")}
           <em>

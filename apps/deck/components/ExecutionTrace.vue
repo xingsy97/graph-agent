@@ -1,18 +1,18 @@
 <template>
   <div class="trace-shell">
     <div class="metrics">
-      <div class="hero"><small>PARALLEL TIME SAVED</small><strong>4m 04s</strong><span>measured from actual execution overlap</span></div>
-      <div><b>9m 31s</b><span>serial-equivalent work</span></div>
-      <div><b>5m 27s</b><span>active execution</span></div>
-      <div><b>1.75×</b><span>effective speedup</span></div>
+      <div class="hero"><small>LESS ELAPSED TIME</small><strong>54%</strong><span>based on recorded task runtimes</span></div>
+      <div><b>1h 43m 55s</b><span>run one by one</span></div>
+      <div><b>47m 26s</b><span>actual parallel run</span></div>
+      <div><b>8</b><span>tasks at peak concurrency</span></div>
     </div>
     <div class="trace">
-      <div class="axis"><span>0:00</span><span>2:00</span><span>4:00</span><span>6:00</span></div>
-      <div class="row"><label>Contract</label><i class="bar contract" /><em class="handoff one">output handed off</em></div>
-      <div class="row"><label>Backend</label><i class="bar backend" /></div>
-      <div class="row"><label>Interface</label><i class="bar interface" /></div>
-      <div class="row"><label>Integration</label><i class="bar integration" /><em class="handoff two">fan-in unlocked</em></div>
-      <div class="critical">Critical path</div>
+      <div class="axis"><span>0:00</span><span>15:00</span><span>30:00</span><span>47:26</span></div>
+      <div class="row"><label>Contracts</label><i class="bar contract" /></div>
+      <div class="row"><label>Persistence</label><i class="bar backend" /></div>
+      <div class="row"><label>Clients</label><i class="bar interface" /></div>
+      <div class="row"><label>Verification</label><i class="bar integration" /></div>
+      <div class="observed">37 / 37 tasks succeeded · 7 graph versions</div>
     </div>
   </div>
 </template>
@@ -31,12 +31,9 @@
 .row { border-top: 1px solid #292d36; height: 76px; margin-left: 110px; position: relative; }
 .row label { color: #abb1bc; font-size: 12px; left: -110px; position: absolute; top: 29px; }
 .bar { border-radius: 7px; height: 22px; position: absolute; top: 27px; }
-.contract { background: #5c6472; left: 0; width: 25%; }
-.backend { background: #806cff; left: 25%; width: 47%; }
-.interface { background: #aa9cff; left: 25%; width: 34%; }
-.integration { background: #65d99b; left: 72%; width: 26%; }
-.handoff { color: #8d94a0; font-size: 9px; font-style: normal; position: absolute; top: 53px; }
-.handoff.one { left: 24%; }
-.handoff.two { left: 70%; }
-.critical { border-top: 2px solid #f5bd63; bottom: 20px; color: #f5bd63; font-size: 10px; left: 164px; padding-top: 4px; position: absolute; right: 40px; }
+.contract { background: #5c6472; left: 0; width: 28%; }
+.backend { background: #806cff; left: 17%; width: 49%; }
+.interface { background: #aa9cff; left: 17%; width: 38%; }
+.integration { background: #65d99b; left: 66%; width: 32%; }
+.observed { border-top: 2px solid #65d99b; bottom: 20px; color: #65d99b; font-size: 10px; left: 164px; padding-top: 4px; position: absolute; right: 40px; }
 </style>

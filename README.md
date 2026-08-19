@@ -4,13 +4,21 @@
 
 Graph Agent turns a high-level task into a dynamic directed acyclic graph (DAG). The graph makes execution understandable at a glance, runs independent work concurrently, and adapts its structure when new information changes the work. People are involved only when a decision affects goals, permissions, cost, risk, or irreversible outcomes.
 
+## Demo
+
+[![Watch the Graph Agent demo](docs/assets/graph-agent-demo-preview.png)](https://github.com/xingsy97/graph-agent/releases/download/v0.1.0/Graph-Agent-Demo-Final-V4.mp4)
+
+[Watch the full 3-minute replay →](https://github.com/xingsy97/graph-agent/releases/download/v0.1.0/Graph-Agent-Demo-Final-V4.mp4)
+
+The demo replays a completed real run: 37 of 37 tasks succeeded, up to 8 tasks ran concurrently, and 1 hour 43 minutes 55 seconds of recorded task runtime completed in 47 minutes 26 seconds—54% less elapsed time than running those task durations one by one.
+
 > [!IMPORTANT]
 > Graph Agent is an experimental developer tool, not a production control plane. Runs are stored in memory, and agent-generated changes must be reviewed before they are published or deployed.
 
 ## Highlights
 
 - An understandable execution graph with explicit tasks and dependencies
-- Dependency-aware parallel execution with up to four concurrent nodes
+- Dependency-aware parallel execution with configurable concurrency
 - Live progress, status, and run updates over Server-Sent Events
 - Runtime graph adaptation when a task reveals additional work
 - A decision inbox for high-impact human approvals
@@ -57,7 +65,7 @@ packages/domain/                 Graph, scheduling, and decision domain logic
 docs/                            Design, architecture, behavior, and test notes
 ```
 
-The UI uses React 19, Next.js 15, React Flow, Lucide icons, and native CSS cascade layers. The server owns credentials, Copilot sessions, scheduling, and workspace access. Domain rules remain isolated in `@graph-agent/domain` so persistence and queue implementations can evolve without changing graph semantics.
+The UI uses React 19, Next.js 16, React Flow, Lucide icons, and native CSS cascade layers. The server owns credentials, Copilot sessions, scheduling, and workspace access. Domain rules remain isolated in `@graph-agent/domain` so persistence and queue implementations can evolve without changing graph semantics.
 
 ## Development
 

@@ -29,16 +29,25 @@ Do not explain architecture yet. Let the graph establish the visual language.
 layout: statement
 ---
 
-# Agents give you a transcript.
+# Complex work does not fit in a linear list.
 
-## Not an execution model.
+## Dependencies are oversimplified, and independent tasks are forced to wait.
 
-<TranscriptProblem />
+<div class="linear-list" aria-label="A linear task list">
+  <span><b>01</b> Plan the objective</span>
+  <i>↓</i>
+  <span><b>02</b> Design architecture</span>
+  <i>↓</i>
+  <span><b>03</b> Build shared contracts</span>
+  <i>↓</i>
+  <span><b>04</b> Implement clients</span>
+  <i>↓</i>
+  <span><b>05</b> Verify and deliver</span>
+</div>
 
 <!--
-Most agent interfaces answer what was said, not how the work is structured.
-When the task becomes complex, three practical questions become hard to answer:
-what can run now, what is blocked, and what result unlocks the next step?
+A linear list cannot represent the actual dependency structure of complex work.
+Independent tasks appear to wait even when all of their inputs are already available.
 -->
 
 ---
@@ -99,11 +108,9 @@ layout: default
 <ExecutionTrace />
 
 <!--
-The speed metric is based on actual execution intervals.
-Serial-equivalent work is the sum of task runtime.
-Active execution is the union of those intervals.
-Their difference is time genuinely saved through overlap, excluding pauses and human waiting.
-Replace the example values with a recorded run before the final presentation.
+This completed real run recorded 1 hour, 43 minutes, and 55 seconds of cumulative task runtime.
+Parallel execution completed the run in 47 minutes and 26 seconds.
+That is 56 minutes and 29 seconds less elapsed time, a 54 percent reduction compared with running the same observed task durations one by one.
 -->
 
 ---
@@ -181,10 +188,11 @@ class: demo-slide
   <span>Plan</span><i>→</i><span>Fan out</span><i>→</i><span>Rewrite</span><i>→</i><span>Converge</span><i>→</i><span>Verify</span>
 </div>
 
+<a class="demo-link" href="https://github.com/xingsy97/graph-agent/releases/download/v0.1.0/Graph-Agent-Demo-Final-V4.mp4">Watch the 3-minute replay →</a>
+
 <!--
-Switch to the product tab.
-Use the prepared release-readiness task.
-Show one dependency unlock, one fan-out, one node inspection, one graph rewrite, the saved-time metric, and the final result.
+The published demo is a replay of a completed real run.
+It shows planning, parallel execution, graph evolution, inspection tools, measured results, and the delivered Todo product.
 -->
 
 ---
@@ -192,15 +200,15 @@ layout: center
 class: closing-slide
 ---
 
-# Understand the work.
-# Measure the speed.
-# Control what matters.
+# Easier to understand.
+# Faster to execute.
+# Smarter by design.
 
 <div class="closing-link">github.com/xingsy97/graph-agent</div>
 
 <div class="closing-mark">Graph Agent</div>
 
 <!--
-Close by repeating the three concrete product values.
+Close with the same three product values used in the application and video.
 Leave the repository URL visible while taking questions.
 -->

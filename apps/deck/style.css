@@ -167,3 +167,48 @@
 .slidev-layout.statement h2 {
   font-size: 34px;
 }
+
+.linear-list {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 58px;
+}
+
+.linear-list span {
+  align-items: center;
+  background: var(--ga-panel);
+  border: 1px solid var(--ga-line);
+  border-radius: 14px;
+  color: var(--ga-text);
+  display: flex;
+  font-size: 14px;
+  gap: 10px;
+  min-height: 68px;
+  padding: 12px 15px;
+}
+
+.linear-list b {
+  color: var(--ga-purple-soft);
+  font: 11px ui-monospace, monospace;
+}
+
+.linear-list i {
+  color: var(--ga-muted);
+  font-size: 18px;
+  transform: rotate(-90deg);
+}
+
+.demo-link {
+  color: var(--ga-purple-soft);
+  display: inline-block;
+  font-size: 19px;
+  font-weight: 650;
+  margin-top: 42px;
+  text-decoration: none;
+}
+
+.demo-link:hover {
+  color: var(--ga-text);
+}

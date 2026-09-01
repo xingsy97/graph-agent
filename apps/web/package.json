@@ -12,14 +12,14 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@github/copilot-sdk": "1.0.10-preview.0",
+    "@github/copilot-sdk": "1.0.11",
     "@graph-agent/domain": "workspace:*",
-    "@xyflow/react": "^12.11.2",
-    "lucide-react": "^1.31.0",
-    "next": "^16.3.0",
+    "@xyflow/react": "^12.11.5",
+    "lucide-react": "^1.37.0",
+    "next": "^16.3.3",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
-    "zod": "^4.4.3"
+    "zod": "^4.5.4"
   },
   "devDependencies": {
     "@testing-library/react": "^16.3.2",
